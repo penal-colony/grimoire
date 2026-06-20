@@ -1,4 +1,23 @@
-/* === Janitor Lorebook - Side Panel Styles === */
+/*
+ * Grimoire - Lorebook injection for JanitorAI
+ * Copyright (C) 2026 Ash <ash@ashisgreat.xyz>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
+/* === Grimoire - Side Panel Styles === */
 
 :root {
   --bg-primary: #1a1a2e;
@@ -6,6 +25,7 @@
   --bg-tertiary: #0f3460;
   --bg-hover: #233;
   --bg-input: #1e1e3a;
+  --bg-card: #1e2a4a;
   --text-primary: #e0e0e0;
   --text-secondary: #a0a0b8;
   --text-muted: #6a6a8a;
@@ -39,6 +59,32 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+/* === Settings Bar === */
+
+.settings-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.setting-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  cursor: help;
+}
+
+.input-sm {
+  width: 50px;
+  padding: 2px 6px;
+  font-size: 13px;
 }
 
 /* === Header === */
@@ -399,4 +445,119 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+/* === View Switching === */
+
+.view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* === Lorebook List (Main View) === */
+
+.lorebook-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.lorebook-card {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  transition: background 0.1s;
+  cursor: pointer;
+}
+
+.lorebook-card:hover {
+  background: var(--bg-hover);
+}
+
+.lorebook-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.lorebook-card-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lorebook-card-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lorebook-card-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.lorebook-card.disabled {
+  opacity: 0.5;
+}
+
+/* === Detail View === */
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-title h2 {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detail-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.btn-back {
+  font-size: 13px;
+  padding: 4px 10px;
+}
+
+.btn-icon {
+  padding: 4px 8px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* === Responsive === */
+
+@media (max-width: 400px) {
+  .header h1 {
+    font-size: 14px;
+  }
+  .toolbar {
+    flex-wrap: wrap;
+  }
 }

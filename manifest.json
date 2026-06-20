@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Janitor Lorebook",
-  "version": "1.0.0",
-  "description": "Local lorebook entries injected into JanitorAI chat completions.",
+  "name": "Grimoire",
+  "version": "2.0.0",
+  "description": "Inject lorebooks into JanitorAI chats. Your API key never leaves your browser.",
   "permissions": [
     "sidePanel",
     "storage",

@@ -1,3 +1,22 @@
+/*
+ * Grimoire - Lorebook injection for JanitorAI
+ * Copyright (C) 2026 Ash <ash@ashisgreat.xyz>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
 /**
  * test/lorebook.test.js - Tests for lib/lorebook.js
  *
@@ -252,6 +271,82 @@ assert(newEntry27.content === "", "New entry content is empty string");
 assert(newEntry27.constant === false, "New entry constant is false");
 assert(newEntry27.selective === true, "New entry selective is true");
 assert(newEntry27.order === 100, "New entry order is 100");
+
+// --- Multi-lorebook: createLorebook tests ---
+
+console.log("\ncreateLorebook:");
+
+// Test 28: New lorebook has correct structure
+const lb28 = Lorebook.createLorebook("Test World", "A test world");
+assert(typeof lb28.id === "string", "New lorebook id is a string");
+assert(lb28.id.startsWith("lb_"), "New lorebook id starts with lb_");
+assert(lb28.name === "Test World", "New lorebook name is correct");
+assert(lb28.description === "A test world", "New lorebook description is correct");
+assert(lb28.enabled === true, "New lorebook is enabled by default");
+assert(typeof lb28.createdAt === "number", "New lorebook has createdAt timestamp");
+assert(typeof lb28.updatedAt === "number", "New lorebook has updatedAt timestamp");
+
+// Test 29: New lorebook with default name when empty
+const lb29 = Lorebook.createLorebook("");
+assert(lb29.name === "Untitled Lorebook", "Empty name defaults to 'Untitled Lorebook'");
+
+// --- Multi-lorebook: getAllEnabledEntries tests ---
+
+console.log("\ngetAllEnabledEntries:");
+
+// Test 30: Combines entries from enabled lorebooks
+const lorebooks30 = [
+  { id: "lb_a", name: "A", enabled: true, },
+  { id: "lb_b", name: "B", enabled: false },
+  { id: "lb_c", name: "C", enabled: true },
+];
+const entriesMap30 = {
+  lb_a: [{ key: ["alpha"], content: "Alpha lore" }],
+  lb_b: [{ key: ["beta"], content: "Beta lore" }],
+  lb_c: [{ key: ["gamma"], content: "Gamma lore" }],
+};
+const combined30 = Lorebook.getAllEnabledEntries(lorebooks30, entriesMap30);
+assert(combined30.length === 2, "getAllEnabledEntries returns entries from 2 enabled lorebooks (not 3)");
+assert(combined30[0].content === "Alpha lore", "First entry is from lorebook A");
+assert(combined30[1].content === "Gamma lore", "Second entry is from lorebook C");
+
+// Test 31: Returns empty for no lorebooks
+assertDeepEqual(Lorebook.getAllEnabledEntries([], {}), [], "Empty lorebooks returns empty");
+
+// Test 32: Returns empty for null/invalid input
+assertDeepEqual(Lorebook.getAllEnabledEntries(null, {}), [], "Null lorebooks returns empty");
+assertDeepEqual(Lorebook.getAllEnabledEntries([], null), [], "Null entries map returns empty");
+assertDeepEqual(Lorebook.getAllEnabledEntries(undefined, undefined), [], "Undefined inputs return empty");
+
+// Test 33: All lorebooks disabled returns empty
+const allDisabled33 = [
+  { id: "lb_a", enabled: false },
+  { id: "lb_b", enabled: false },
+];
+const map33 = {
+  lb_a: [{ key: ["a"], content: "A" }],
+  lb_b: [{ key: ["b"], content: "B" }],
+};
+assertDeepEqual(Lorebook.getAllEnabledEntries(allDisabled33, map33), [], "All disabled lorebooks returns empty");
+
+// Test 34: Filters invalid entries during flattening
+const lorebooks34 = [{ id: "lb_x", enabled: true }];
+const map34 = {
+  lb_x: [
+    { key: ["valid"], content: "Valid entry" },
+    { key: ["bad"], content: "" }, // empty content, should be filtered
+    null, // null, should be filtered
+    { key: "notarray", content: "bad key" }, // non-array key but has content - will be filtered by isValidEntry
+  ],
+};
+const combined34 = Lorebook.getAllEnabledEntries(lorebooks34, map34);
+assert(combined34.length === 1, "Invalid entries filtered in getAllEnabledEntries");
+assert(combined34[0].content === "Valid entry", "Only valid entry survives");
+
+// Test 35: Lorebook with no entries key in map
+const lorebooks35 = [{ id: "lb_missing", enabled: true }];
+const combined35 = Lorebook.getAllEnabledEntries(lorebooks35, {});
+assert(combined35.length === 0, "Lorebook with no entries in map returns empty");
 
 // --- Results ---
 

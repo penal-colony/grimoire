@@ -1,3 +1,22 @@
+/*
+ * Grimoire - Lorebook injection for JanitorAI
+ * Copyright (C) 2026 Ash <ash@ashisgreat.xyz>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
 /**
  * inject.js - MAIN world script
  *
@@ -17,14 +36,14 @@
   // W5 fix: Use the shared Lorebook library from lib/lorebook.js (loaded in MAIN world)
   // This eliminates the duplicate matcher logic that had subtle bugs (no keyword trimming).
   if (typeof window.Lorebook === "undefined") {
-    console.warn("[Janitor Lorebook] Lorebook library not loaded! Injection disabled.");
+    console.warn("[Grimoire] Lorebook library not loaded! Injection disabled.");
     return;
   }
 
   const Lorebook = window.Lorebook;
 
   // Shared secret for postMessage validation (raises the bar for forgery)
-  const LOREBOOK_SECRET = "janitor-lorebook-v1";
+  const LOREBOOK_SECRET = "grimoire-v1";
 
   // Only accept messages from janitorai.com origin
   const PAGE_ORIGIN = "https://janitorai.com";
@@ -32,6 +51,7 @@
   // Cached lorebook entries and master toggle
   let cachedEntries = [];
   let lorebookEnabled = true;
+  let scanDepth = 3; // Default: scan last 3 messages for keyword triggers
 
   // --- Communication with content script (ISOLATED world) ---
 
@@ -47,11 +67,14 @@
     if (event.data.type === "LOREBOOK_DATA" && event.data.secret === LOREBOOK_SECRET) {
       // Validate entries shape (W2 fix)
       if (!Array.isArray(event.data.entries)) {
-        console.warn("[Janitor Lorebook] Invalid entries data received, ignoring.");
+        console.warn("[Grimoire] Invalid entries data received, ignoring.");
         return;
       }
       cachedEntries = event.data.entries;
       lorebookEnabled = event.data.enabled !== false;
+      if (typeof event.data.scanDepth === "number" && event.data.scanDepth > 0) {
+        scanDepth = event.data.scanDepth;
+      }
     }
   });
 
@@ -132,9 +155,9 @@
           const body = JSON.parse(bodyStr);
 
           if (body.messages && Array.isArray(body.messages) && body.messages.length > 0) {
-            // Extract conversation text from last ~10 messages for keyword scanning
-            // Handle both string content and multimodal content arrays (E4 fix)
-            const recentMessages = body.messages.slice(-10);
+            // Extract conversation text from last N messages for keyword scanning
+            // scanDepth is set from storage (default: 3)
+            const recentMessages = body.messages.slice(-scanDepth);
             const conversationText = recentMessages
               .map((m) => {
                 if (typeof m.content === "string") return m.content;
@@ -173,7 +196,7 @@
       } catch (err) {
         // If anything goes wrong, just pass the request through unmodified.
         // Streaming responses are never touched (only request body is modified).
-        console.warn("[Janitor Lorebook] Injection error (passing through):", err);
+        console.warn("[Grimoire] Injection error (passing through):", err);
       }
     }
 
@@ -188,5 +211,5 @@
     return originalFetch.apply(this, args);
   };
 
-  console.log("[Janitor Lorebook] Fetch interceptor installed.");
+  console.log("[Grimoire] Fetch interceptor installed.");
 })();
