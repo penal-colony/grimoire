@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Janitor Lorebook</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <img src="../icons/icon-48.png" alt="Lorebook" class="header-icon">
+        <h1>Janitor Lorebook</h1>
+      </div>
+      <label class="switch" title="Master toggle: inject lorebook into chats">
+        <input type="checkbox" id="masterToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button id="btnAdd" class="btn btn-primary">+ Add Entry</button>
+      <button id="btnImport" class="btn btn-secondary">Import</button>
+      <button id="btnExport" class="btn btn-secondary">Export</button>
+      <input type="file" id="fileImport" accept=".json" style="display:none">
+    </div>
+
+    <!-- Entry list -->
+    <div id="entryList" class="entry-list">
+      <!-- Entries rendered here by JS -->
+    </div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="empty-state" style="display:none">
+      <p>No entries yet.</p>
+      <p>Import a SillyTavern lorebook or create one.</p>
+    </div>
+
+    <!-- Edit modal -->
+    <div id="editModal" class="modal-overlay" style="display:none">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="modalTitle">Edit Entry</h2>
+          <button id="btnCloseModal" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <label class="field-label">Label / Comment</label>
+          <input type="text" id="editComment" class="input" placeholder="Entry description">
+
+          <label class="field-label">Keywords (comma-separated)</label>
+          <input type="text" id="editKeys" class="input" placeholder="keyword1, keyword2">
+
+          <label class="field-label">Content</label>
+          <textarea id="editContent" class="textarea" rows="6" placeholder="Lorebook content to inject..."></textarea>
+
+          <div class="field-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="editConstant">
+              <span>Constant (always inject)</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="editSelective" checked>
+              <span>Selective (keyword-triggered)</span>
+            </label>
+          </div>
+
+          <label class="field-label">Order (lower = injected first)</label>
+          <input type="number" id="editOrder" class="input" value="100" min="0" max="999">
+        </div>
+        <div class="modal-footer">
+          <button id="btnDelete" class="btn btn-danger">Delete</button>
+          <button id="btnSave" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared logic -->
+  <script src="../lib/lorebook.js"></script>
+  <!-- Side panel logic -->
+  <script src="sidepanel.js"></script>
+</body>
+</html>
