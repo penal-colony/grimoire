@@ -1,8 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Janitor Lorebook",
-  "version": "1.0.0",
-  "description": "Local lorebook entries injected into JanitorAI chat completions.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "grimoire@ashisgreat.xyz",
+      "strict_min_version": "115.0"
+    }
+  },
+  "name": "Grimoire",
+  "version": "2.0.0",
+  "description": "Inject lorebooks into JanitorAI chats. Your API key never leaves your browser.",
   "permissions": [
     "sidePanel",
     "storage",
@@ -20,7 +26,8 @@
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
   },
   "content_scripts": [
     {
