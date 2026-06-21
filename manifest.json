@@ -4,7 +4,7 @@
     "gecko": {
       "id": "grimoire@ashisgreat.xyz",
       "strict_min_version": "115.0",
-      "data_collection_permissions": []
+      "data_collection_permissions": {}
     }
   },
   "name": "Grimoire",
