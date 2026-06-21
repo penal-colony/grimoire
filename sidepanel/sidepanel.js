@@ -161,50 +161,77 @@
     lorebookList.style.display = "block";
     lorebookEmptyState.style.display = "none";
 
-    lorebookList.innerHTML = lorebooks
-      .slice()
-      .sort((a, b) => b.updatedAt - a.updatedAt)
-      .map((lb) => {
-        const entryCount = entriesByLorebook[lb.id]
-          ? entriesByLorebook[lb.id].length
-          : 0;
-        const isDisabled = !lb.enabled;
-        const safeId = escapeHtml(lb.id);
-        const name = escapeHtml(lb.name || "Untitled");
-        const desc = escapeHtml(lb.description || "");
+    // Clear existing list
+    while (lorebookList.firstChild) {
+      lorebookList.removeChild(lorebookList.firstChild);
+    }
 
-        return `
-          <div class="lorebook-card ${isDisabled ? "disabled" : ""}" data-lb-id="${safeId}">
-            <div class="lorebook-card-info">
-              <div class="lorebook-card-name">${name}</div>
-              ${desc ? `<div class="lorebook-card-desc">${desc}</div>` : ""}
-              <div class="lorebook-card-meta">${entryCount} ${entryCount === 1 ? "entry" : "entries"}</div>
-            </div>
-            <div class="entry-actions">
-              <label class="switch" title="Enable/Disable lorebook" onclick="event.stopPropagation()">
-                <input type="checkbox" class="lb-toggle" data-lb-id="${safeId}" ${lb.enabled ? "checked" : ""}>
-                <span class="slider"></span>
-              </label>
-            </div>
-          </div>
-        `;
-      })
-      .join("");
+    const sorted = lorebooks.slice().sort((a, b) => b.updatedAt - a.updatedAt);
 
-    // Attach listeners
-    lorebookList.querySelectorAll(".lorebook-card").forEach((el) => {
-      el.addEventListener("click", () => {
-        const id = el.dataset.lbId;
-        showLorebookDetail(id);
-      });
-    });
+    sorted.forEach((lb) => {
+      const entryCount = entriesByLorebook[lb.id]
+        ? entriesByLorebook[lb.id].length
+        : 0;
+      const isDisabled = !lb.enabled;
+      const id = lb.id;
 
-    lorebookList.querySelectorAll(".lb-toggle").forEach((el) => {
-      el.addEventListener("change", (e) => {
+      // Card container
+      const card = document.createElement("div");
+      card.className = "lorebook-card" + (isDisabled ? " disabled" : "");
+      card.setAttribute("data-lb-id", id);
+      card.addEventListener("click", () => showLorebookDetail(id));
+
+      // Info section
+      const info = document.createElement("div");
+      info.className = "lorebook-card-info";
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "lorebook-card-name";
+      nameEl.textContent = lb.name || "Untitled";
+      info.appendChild(nameEl);
+
+      if (lb.description) {
+        const descEl = document.createElement("div");
+        descEl.className = "lorebook-card-desc";
+        descEl.textContent = lb.description;
+        info.appendChild(descEl);
+      }
+
+      const meta = document.createElement("div");
+      meta.className = "lorebook-card-meta";
+      meta.textContent = entryCount + " " + (entryCount === 1 ? "entry" : "entries");
+      info.appendChild(meta);
+
+      card.appendChild(info);
+
+      // Toggle switch
+      const actions = document.createElement("div");
+      actions.className = "entry-actions";
+
+      const label = document.createElement("label");
+      label.className = "switch";
+      label.setAttribute("title", "Enable/Disable lorebook");
+      label.addEventListener("click", (e) => e.stopPropagation());
+
+      const toggle = document.createElement("input");
+      toggle.type = "checkbox";
+      toggle.className = "lb-toggle";
+      toggle.setAttribute("data-lb-id", id);
+      toggle.checked = !!lb.enabled;
+      toggle.addEventListener("change", (e) => {
         e.stopPropagation();
-        const id = e.target.dataset.lbId;
-        toggleLorebook(id, e.target.checked);
+        toggleLorebook(id, toggle.checked);
       });
+
+      const slider = document.createElement("span");
+      slider.className = "slider";
+
+      label.appendChild(toggle);
+      label.appendChild(slider);
+      actions.appendChild(label);
+      card.appendChild(actions);
+
+      lorebookList.appendChild(card);
     });
   }
 
@@ -225,51 +252,94 @@
     entryList.style.display = "block";
     entryEmptyState.style.display = "none";
 
-    entryList.innerHTML = entries
-      .slice()
-      .sort((a, b) => (a.order || 100) - (b.order || 100))
-      .map((entry) => {
-        const isDisabled = entry.disable;
-        const keywordBadges = (entry.key || [])
-          .map((k) => `<span class="badge">${escapeHtml(k)}</span>`)
-          .join("");
-        const constantTag = entry.constant
-          ? '<span class="entry-constant-tag">CONST</span>'
-          : "";
-        const label = escapeHtml(entry.comment || "Untitled");
-        const safeUid = Number(entry.uid) || 0;
+    // Clear existing list
+    while (entryList.firstChild) {
+      entryList.removeChild(entryList.firstChild);
+    }
 
-        return `
-          <div class="entry-card ${isDisabled ? "disabled" : ""}" data-uid="${safeUid}">
-            <div class="entry-info">
-              <div class="entry-label">${label}${constantTag}</div>
-              <div class="entry-keywords">${keywordBadges || '<span style="color:var(--text-muted)">No keywords</span>'}</div>
-            </div>
-            <div class="entry-actions">
-              <label class="switch" title="Enable/Disable entry">
-                <input type="checkbox" class="entry-toggle" data-uid="${safeUid}" ${isDisabled ? "" : "checked"}>
-                <span class="slider"></span>
-              </label>
-              <button class="btn btn-secondary entry-edit" data-uid="${safeUid}">Edit</button>
-            </div>
-          </div>
-        `;
-      })
-      .join("");
+    const sorted = entries.slice().sort((a, b) => (a.order || 100) - (b.order || 100));
 
-    // Attach event listeners
-    entryList.querySelectorAll(".entry-toggle").forEach((el) => {
-      el.addEventListener("change", (e) => {
-        const uid = Number(e.target.dataset.uid);
-        toggleEntry(uid, !e.target.checked);
-      });
-    });
+    sorted.forEach((entry) => {
+      const isDisabled = entry.disable;
+      const uid = Number(entry.uid) || 0;
 
-    entryList.querySelectorAll(".entry-edit").forEach((el) => {
-      el.addEventListener("click", (e) => {
-        const uid = Number(e.target.dataset.uid);
-        openEditModal(uid);
-      });
+      // Card container
+      const card = document.createElement("div");
+      card.className = "entry-card" + (isDisabled ? " disabled" : "");
+      card.setAttribute("data-uid", String(uid));
+
+      // Info section
+      const info = document.createElement("div");
+      info.className = "entry-info";
+
+      // Label with optional CONST tag
+      const labelEl = document.createElement("div");
+      labelEl.className = "entry-label";
+      labelEl.textContent = entry.comment || "Untitled";
+
+      if (entry.constant) {
+        const constTag = document.createElement("span");
+        constTag.className = "entry-constant-tag";
+        constTag.textContent = "CONST";
+        labelEl.appendChild(constTag);
+      }
+
+      info.appendChild(labelEl);
+
+      // Keywords
+      const keywordsEl = document.createElement("div");
+      keywordsEl.className = "entry-keywords";
+
+      if (entry.key && entry.key.length > 0) {
+        entry.key.forEach((k) => {
+          const badge = document.createElement("span");
+          badge.className = "badge";
+          badge.textContent = k;
+          keywordsEl.appendChild(badge);
+        });
+      } else {
+        const noKw = document.createElement("span");
+        noKw.style.color = "var(--text-muted)";
+        noKw.textContent = "No keywords";
+        keywordsEl.appendChild(noKw);
+      }
+
+      info.appendChild(keywordsEl);
+      card.appendChild(info);
+
+      // Actions
+      const actions = document.createElement("div");
+      actions.className = "entry-actions";
+
+      // Toggle
+      const label = document.createElement("label");
+      label.className = "switch";
+      label.setAttribute("title", "Enable/Disable entry");
+
+      const toggle = document.createElement("input");
+      toggle.type = "checkbox";
+      toggle.className = "entry-toggle";
+      toggle.setAttribute("data-uid", String(uid));
+      toggle.checked = !isDisabled;
+      toggle.addEventListener("change", () => toggleEntry(uid, !toggle.checked));
+
+      const slider = document.createElement("span");
+      slider.className = "slider";
+
+      label.appendChild(toggle);
+      label.appendChild(slider);
+      actions.appendChild(label);
+
+      // Edit button
+      const editBtn = document.createElement("button");
+      editBtn.className = "btn btn-secondary entry-edit";
+      editBtn.setAttribute("data-uid", String(uid));
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", () => openEditModal(uid));
+      actions.appendChild(editBtn);
+
+      card.appendChild(actions);
+      entryList.appendChild(card);
     });
   }
 

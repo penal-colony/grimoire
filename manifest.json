@@ -3,7 +3,8 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "grimoire@ashisgreat.xyz",
-      "strict_min_version": "115.0"
+      "strict_min_version": "115.0",
+      "data_collection_permissions": []
     }
   },
   "name": "Grimoire",
