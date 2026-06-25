@@ -45,6 +45,18 @@
       "js": ["lib/lorebook.js", "content/inject.js"],
       "run_at": "document_start",
       "world": "MAIN"
+    },
+    {
+      "matches": ["https://janitorai.com/*", "https://www.janitorai.com/*"],
+      "js": ["content/plugin-bridge.js"],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": ["https://janitorai.com/*", "https://www.janitorai.com/*"],
+      "js": ["content/plugin-main.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ],
   "icons": {
@@ -55,7 +67,11 @@
   "side_panel": {
     "default_path": "sidepanel/index.html"
   },
+  "sandbox": {
+    "pages": ["sandbox/plugin-runner.html"]
+  },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'self'",
+    "sandbox": "sandbox allow-scripts; script-src 'unsafe-eval' 'self'"
   }
 }

@@ -28,6 +28,12 @@
       </label>
     </div>
 
+    <!-- Tab navigation -->
+    <nav class="tab-nav">
+      <button id="tabLorebooks" class="tab-btn active">Lorebooks</button>
+      <button id="tabPlugins" class="tab-btn">Plugins</button>
+    </nav>
+
     <!-- === Lorebook List View === -->
     <div id="view-lorebooks" class="view">
       <div class="toolbar">
@@ -68,6 +74,23 @@
       <div id="entryEmptyState" class="empty-state" style="display:none">
         <p>No entries in this lorebook.</p>
         <p>Add one or import entries.</p>
+      </div>
+    </div>
+
+    <!-- === Plugin View === -->
+    <div id="view-plugins" class="view" style="display:none">
+      <div class="toolbar">
+        <button id="btnAddPlugin" class="btn btn-primary">+ Add Plugin</button>
+        <button id="btnImportPlugin" class="btn btn-secondary">Import</button>
+      </div>
+
+      <div id="pluginList" class="plugin-list">
+        <!-- Plugin cards rendered here by JS -->
+      </div>
+
+      <div id="pluginEmptyState" class="empty-state" style="display:none">
+        <p>No plugins yet.</p>
+        <p>Create one or import a plugin.</p>
       </div>
     </div>
 
@@ -129,11 +152,37 @@
         </div>
       </div>
     </div>
+    <!-- Edit plugin modal -->
+    <div id="pluginModal" class="modal-overlay" style="display:none">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="pluginModalTitle">Edit Plugin</h2>
+          <button id="btnClosePluginModal" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <label class="field-label">Name</label>
+          <input type="text" id="editPluginName" class="input" placeholder="Plugin name">
+
+          <label class="field-label">Code</label>
+          <textarea id="editPluginCode" class="textarea" rows="12" placeholder="function processMessage(messages, api) {&#10;  // Your plugin code here&#10;  return messages;&#10;}" style="font-family: monospace; font-size: 12px; line-height: 1.4;"></textarea>
+
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+            Available API: api.getVariable(name), api.setVariable(name, value, operation), api.db.get/set/delete/keys(), api.addMessage({role, content, append}), api.replaceMessage({find, replace, target})
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button id="btnDeletePlugin" class="btn btn-danger">Delete</button>
+          <button id="btnSavePlugin" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Shared logic -->
   <script src="../lib/lorebook.js"></script>
   <!-- Side panel logic -->
   <script src="sidepanel.js"></script>
+  <!-- Plugin UI logic -->
+  <script src="plugin-ui.js"></script>
 </body>
 </html>
